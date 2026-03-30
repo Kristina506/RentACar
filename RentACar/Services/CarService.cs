@@ -1,51 +1,48 @@
-﻿using RentACar.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using RentACar.Data;
+using RentACar.Models;
 
 namespace RentACar.Services
 {
     public class CarService
     {
-        private static readonly List<Car> cars = new List<Car>();
+        private readonly ApplicationDbContext context;
 
-        public List<Car> GetAll()
+        public CarService(ApplicationDbContext context)
         {
-            return cars;
+            this.context = context;
         }
 
-        public Car? GetById(int id)
+        public async Task<List<Car>> GetAllAsync()
         {
-            return cars.FirstOrDefault(c => c.Id == id);
+            return await context.Cars.ToListAsync();
         }
 
-        public void Add(Car car)
+        public async Task<Car?> GetByIdAsync(int id)
         {
-            car.Id = cars.Count == 0 ? 1 : cars.Max(c => c.Id) + 1;
-            cars.Add(car);
+            return await context.Cars.FirstOrDefaultAsync(c => c.Id == id);
         }
 
-        public void Update(Car updatedCar)
+        public async Task AddAsync(Car car)
         {
-            var car = GetById(updatedCar.Id);
-
-            if (car == null)
-            {
-                return;
-            }
-
-            car.Brand = updatedCar.Brand;
-            car.Model = updatedCar.Model;
-            car.Year = updatedCar.Year;
-            car.Seats = updatedCar.Seats;
-            car.Description = updatedCar.Description;
-            car.PricePerDay = updatedCar.PricePerDay;
+            context.Cars.Add(car);
+            await context.SaveChangesAsync();
         }
 
-        public void Delete(int id)
+        public async Task UpdateAsync(Car updatedCar)
         {
-            var car = GetById(id);
+            context.Cars.Update(updatedCar);
+            await context.SaveChangesAsync();
+        }
+
+        public async Task DeleteAsync(int id)
+        {
+            var car = await GetByIdAsync(id);
 
             if (car != null)
             {
-                cars.Remove(car);
+                context.Cars.Remove(car);
+                await context.SaveChangesAsync();
             }
         }
     }

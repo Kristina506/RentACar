@@ -8,20 +8,20 @@ namespace RentACar.Controllers
     {
         private readonly CarService carService;
 
-        public CarsController()
+        public CarsController(CarService carService)
         {
-            carService = new CarService();
+            this.carService = carService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var cars = carService.GetAll();
+            var cars = await carService.GetAllAsync();
             return View(cars);
         }
 
-        public IActionResult Details(int id)
+        public async Task<IActionResult> Details(int id)
         {
-            var car = carService.GetById(id);
+            var car = await carService.GetByIdAsync(id);
 
             if (car == null)
             {
@@ -37,20 +37,20 @@ namespace RentACar.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(Car car)
+        public async Task<IActionResult> Create(Car car)
         {
             if (!ModelState.IsValid)
             {
                 return View(car);
             }
 
-            carService.Add(car);
+            await carService.AddAsync(car);
             return RedirectToAction(nameof(Index));
         }
 
-        public IActionResult Edit(int id)
+        public async Task<IActionResult> Edit(int id)
         {
-            var car = carService.GetById(id);
+            var car = await carService.GetByIdAsync(id);
 
             if (car == null)
             {
@@ -61,20 +61,33 @@ namespace RentACar.Controllers
         }
 
         [HttpPost]
-        public IActionResult Edit(Car car)
+        public async Task<IActionResult> Edit(Car car)
         {
             if (!ModelState.IsValid)
             {
                 return View(car);
             }
 
-            carService.Update(car);
+            await carService.UpdateAsync(car);
             return RedirectToAction(nameof(Index));
         }
 
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            carService.Delete(id);
+            var car = await carService.GetByIdAsync(id);
+
+            if (car == null)
+            {
+                return NotFound();
+            }
+
+            return View(car);
+        }
+
+        [HttpPost, ActionName("Delete")]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            await carService.DeleteAsync(id);
             return RedirectToAction(nameof(Index));
         }
     }
