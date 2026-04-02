@@ -11,6 +11,8 @@ namespace RentACar.Data
         }
 
         public DbSet<Car> Cars { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<Reservation> Reservations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -19,6 +21,22 @@ namespace RentACar.Data
             modelBuilder.Entity<Car>()
                 .Property(c => c.PricePerDay)
                 .HasPrecision(18, 2);
+
+            modelBuilder.Entity<Reservation>()
+                .Property(r => r.TotalPrice)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<Reservation>()
+                .HasOne(r => r.User)
+                .WithMany(u => u.Reservations)
+                .HasForeignKey(r => r.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Reservation>()
+                .HasOne(r => r.Car)
+                .WithMany()
+                .HasForeignKey(r => r.CarId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }
