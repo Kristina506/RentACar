@@ -1,77 +1,77 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using RentACar.Models;
-using RentACar.Services;
+﻿    using Microsoft.AspNetCore.Mvc;
+    using RentACar.Models;
+    using RentACar.Services;
 
-namespace RentACar.Controllers
-{
-    public class UsersController:Controller
+    namespace RentACar.Controllers
     {
-        private readonly UserService userService;
-
-        public UsersController(UserService userService)
+        public class UsersController:Controller
         {
-            this.userService = userService;
-        }
+            private readonly UserService userService;
 
-        public async Task<IActionResult> Index()
-        {
-            var users = await userService.GetAllAsync();
-            return View(users);
-        }
-
-        public async Task<IActionResult> Details(int id)
-        {
-            var user = await userService.GetByIdAsync(id);
-
-            if (user == null)
+            public UsersController(UserService userService)
             {
-                return NotFound();
+                this.userService = userService;
             }
 
-            return View(user);
-        }
-
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(User user)
-        {
-            if (!ModelState.IsValid)
+            public async Task<IActionResult> Index()
             {
+                var users = await userService.GetAllAsync();
+                return View(users);
+            }
+
+            public async Task<IActionResult> Details(int id)
+            {
+                var user = await userService.GetByIdAsync(id);
+
+                if (user == null)
+                {
+                    return NotFound();
+                }
+
                 return View(user);
             }
 
-            await userService.AddAsync(user);
-            return RedirectToAction(nameof(Index));
-        }
-
-        public async Task<IActionResult> Edit(int id)
-        {
-            var user = await userService.GetByIdAsync(id);
-
-            if (user == null)
+            public IActionResult Create()
             {
-                return NotFound();
+                return View();
             }
 
-            return View(user);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(User user)
-        {
-            if (!ModelState.IsValid)
+            [HttpPost]
+            [ValidateAntiForgeryToken]
+            public async Task<IActionResult> Create(User user)
             {
+                if (!ModelState.IsValid)
+                {
+                    return View(user);
+                }
+
+                await userService.AddAsync(user);
+                return RedirectToAction(nameof(Index));
+            }
+
+            public async Task<IActionResult> Edit(int id)
+            {
+                var user = await userService.GetByIdAsync(id);
+
+                if (user == null)
+                {
+                    return NotFound();
+                }
+
                 return View(user);
             }
 
-            await userService.UpdateAsync(user);
-            return RedirectToAction(nameof(Index));
+            [HttpPost]
+            [ValidateAntiForgeryToken]
+            public async Task<IActionResult> Edit(User user)
+            {
+                if (!ModelState.IsValid)
+                {
+                    return View(user);
+                }
+
+                await userService.UpdateAsync(user);
+                return RedirectToAction(nameof(Index));
+            }
         }
     }
-}

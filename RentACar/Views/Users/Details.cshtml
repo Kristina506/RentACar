@@ -1,0 +1,46 @@
+﻿@model RentACar.Models.User
+
+@{
+    ViewData["Title"] = "User Details";
+}
+
+<div class="details-page">
+    <div class="details-card">
+        <h1>User Details</h1>
+
+        <div class="details-row">
+            <span class="details-label">Username:</span>
+            <span>@Model.Username</span>
+        </div>
+
+        <div class="details-row">
+            <span class="details-label">First Name:</span>
+            <span>@Model.FirstName</span>
+        </div>
+
+        <div class="details-row">
+            <span class="details-label">Last Name:</span>
+            <span>@Model.LastName</span>
+        </div>
+
+        <div class="details-row">
+            <span class="details-label">EGN:</span>
+            <span>@Model.EGN</span>
+        </div>
+
+        <div class="details-row">
+            <span class="details-label">Email:</span>
+            <span>@Model.Email</span>
+        </div>
+
+        <div class="details-row">
+            <span class="details-label">Phone Number:</span>
+            <span>@Model.PhoneNumber</span>
+        </div>
+
+        <div class="form-actions">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn-main">Edit</a>
+            <a asp-action="Index" class="btn-secondary">Back</a>
+        </div>
+    </div>
+</div>
