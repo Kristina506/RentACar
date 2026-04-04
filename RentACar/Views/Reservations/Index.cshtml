@@ -1,0 +1,42 @@
+﻿@model IEnumerable<RentACar.Models.Reservation>
+
+@{
+    ViewData["Title"] = "Reservations";
+}
+
+<div class="reservations-page">
+    <div class="reservations-header">
+        <h1>Reservations</h1>
+        <a asp-action="Create" class="btn-main">+ Add Reservation</a>
+    </div>
+
+    <div class="reservations-table-wrapper">
+        <table class="reservations-table">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Car</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Total Price</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var reservation in Model)
+                {
+                    <tr>
+                        <td>@reservation.User?.FirstName @reservation.User?.LastName</td>
+                        <td>@reservation.Car?.Brand @reservation.Car?.Model</td>
+                        <td>@reservation.StartDate.ToShortDateString()</td>
+                        <td>@reservation.EndDate.ToShortDateString()</td>
+                        <td>@reservation.TotalPrice.ToString("F2") лв.</td>
+                        <td class="action-links">
+                            <a asp-action="Details" asp-route-id="@reservation.Id" class="btn-small details-btn">Details</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

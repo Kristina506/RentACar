@@ -1,0 +1,45 @@
+﻿@model RentACar.Models.Reservation
+
+@{
+    ViewData["Title"] = "Reservation Details";
+}
+
+<div class="details-page">
+    <div class="details-card">
+        <h1>Reservation Details</h1>
+
+        <div class="details-row">
+            <span class="details-label">User:</span>
+            <span>@Model.User?.FirstName @Model.User?.LastName</span>
+        </div>
+
+        <div class="details-row">
+            <span class="details-label">Car:</span>
+            <span>@Model.Car?.Brand @Model.Car?.Model</span>
+        </div>
+
+        <div class="details-row">
+            <span class="details-label">Start Date:</span>
+            <span>@Model.StartDate.ToShortDateString()</span>
+        </div>
+
+        <div class="details-row">
+            <span class="details-label">End Date:</span>
+            <span>@Model.EndDate.ToShortDateString()</span>
+        </div>
+
+        <div class="details-row">
+            <span class="details-label">Days:</span>
+            <span>@Model.Days</span>
+        </div>
+
+        <div class="details-row">
+            <span class="details-label">Total Price:</span>
+            <span>@Model.TotalPrice.ToString("F2") лв.</span>
+        </div>
+
+        <div class="form-actions">
+            <a asp-action="Index" class="btn-secondary">Back</a>
+        </div>
+    </div>
+</div>

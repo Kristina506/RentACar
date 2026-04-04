@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using RentACar.Models;
 using RentACar.Services;
 
 namespace RentACar.Controllers
 {
-    public class UsersController:Controller
+    public class UsersController : Controller
     {
         private readonly UserService userService;
 
