@@ -1,15 +1,19 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Mvc;
+using RentACar.Models;
 using RentACar.Services;
+using System.Security.Claims;
 
 namespace RentACar.Controllers
 {
     public class AuthController : Controller
     {
-        private readonly AuthService authService;
+        private readonly AuthService _authService;
 
-        public AuthController()
+        public AuthController(AuthService authService)
         {
-            authService = new AuthService();
+            _authService = authService;
         }
 
         public IActionResult Login()
@@ -18,15 +22,32 @@ namespace RentACar.Controllers
         }
 
         [HttpPost]
-        public IActionResult Login(string username, string password)
+        public async Task<IActionResult> Login(string username, string password)
         {
-            var isValid = authService.ValidateLogin(username, password);
+            var user = _authService.ValidateUser(username, password);
 
-            if (!isValid)
+            if (user == null)
             {
-                ViewBag.ErrorMessage = "Invalid username or password.";
+                ViewBag.Error = "Невалидно потребителско име или парола.";
                 return View();
             }
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.Role, user.Role),
+                new Claim("UserId", user.Id.ToString())
+            };
+
+            var identity = new ClaimsIdentity(
+                claims,
+                CookieAuthenticationDefaults.AuthenticationScheme);
+
+            var principal = new ClaimsPrincipal(identity);
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                principal);
 
             return RedirectToAction("Index", "Home");
         }
@@ -37,21 +58,28 @@ namespace RentACar.Controllers
         }
 
         [HttpPost]
-        public IActionResult Register(string username, string password)
+        public IActionResult Register(User user)
         {
-            if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+            if (!ModelState.IsValid)
             {
-                ViewBag.ErrorMessage = "Username and password are required.";
-                return View();
+                return View(user);
             }
 
-            ViewBag.SuccessMessage = "Registration successful.";
-            return View();
+            bool result = _authService.RegisterUser(user);
+
+            if (!result)
+            {
+                ViewBag.Error = "Това потребителско име вече съществува.";
+                return View(user);
+            }
+
+            return RedirectToAction("Login");
         }
 
-        public IActionResult Logout()
+        public async Task<IActionResult> Logout()
         {
-            return RedirectToAction("Index", "Home");
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return RedirectToAction("Login");
         }
     }
 }

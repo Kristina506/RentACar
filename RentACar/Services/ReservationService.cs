@@ -29,6 +29,15 @@ namespace RentACar.Services
                 .FirstOrDefaultAsync(r => r.Id == id);
         }
 
+        public async Task<bool> IsCarAvailableAsync(int carId, DateTime startDate, DateTime endDate, int? reservationId = null)
+        {
+            return !await context.Reservations.AnyAsync(r =>
+                r.CarId == carId &&
+                (reservationId == null || r.Id != reservationId) &&
+                startDate <= r.EndDate &&
+                endDate >= r.StartDate);
+        }
+
         public async Task AddAsync(Reservation reservation)
         {
             var car = await context.Cars.FirstOrDefaultAsync(c => c.Id == reservation.CarId);
@@ -46,6 +55,34 @@ namespace RentACar.Services
 
             context.Reservations.Add(reservation);
             await context.SaveChangesAsync();
+        }
+
+        public async Task UpdateAsync(Reservation reservation)
+        {
+            var existingReservation = await context.Reservations.FindAsync(reservation.Id);
+
+            if (existingReservation != null)
+            {
+                existingReservation.UserId = reservation.UserId;
+                existingReservation.CarId = reservation.CarId;
+                existingReservation.StartDate = reservation.StartDate;
+                existingReservation.EndDate = reservation.EndDate;
+
+                var car = await context.Cars.FirstOrDefaultAsync(c => c.Id == reservation.CarId);
+
+                if (car != null)
+                {
+                    var days = (reservation.EndDate - reservation.StartDate).Days;
+                    if (days <= 0)
+                    {
+                        days = 1;
+                    }
+
+                    existingReservation.TotalPrice = days * car.PricePerDay;
+                }
+
+                await context.SaveChangesAsync();
+            }
         }
 
         public async Task DeleteAsync(int id)

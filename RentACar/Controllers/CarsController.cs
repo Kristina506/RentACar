@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RentACar.Models;
 using RentACar.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace RentACar.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class CarsController : Controller
     {
         private readonly CarService carService;
@@ -37,6 +39,7 @@ namespace RentACar.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Car car)
         {
             if (!ModelState.IsValid)
@@ -61,6 +64,7 @@ namespace RentACar.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Car car)
         {
             if (!ModelState.IsValid)
@@ -85,6 +89,7 @@ namespace RentACar.Controllers
         }
 
         [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             await carService.DeleteAsync(id);

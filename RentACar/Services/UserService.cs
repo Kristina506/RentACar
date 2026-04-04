@@ -34,8 +34,21 @@ namespace RentACar.Services
 
         public async Task UpdateAsync(User user)
         {
-            context.Users.Update(user);
-            await context.SaveChangesAsync();
+            var existingUser = await context.Users.FindAsync(user.Id);
+
+            if (existingUser != null)
+            {
+                existingUser.Username = user.Username;
+                existingUser.Password = user.Password;
+                existingUser.FirstName = user.FirstName;
+                existingUser.LastName = user.LastName;
+                existingUser.EGN = user.EGN;
+                existingUser.Email = user.Email;
+                existingUser.PhoneNumber = user.PhoneNumber;
+                existingUser.Role = user.Role;
+
+                await context.SaveChangesAsync();
+            }
         }
 
         public async Task DeleteAsync(int id)

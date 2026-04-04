@@ -31,5 +31,8 @@ namespace RentACar.Models
         public string PhoneNumber { get; set; } = string.Empty;
 
         public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
+
+        [Required]
+        public string Role { get; set; } = "User";
     }
 }
