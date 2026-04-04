@@ -6,8 +6,15 @@
 
 <div class="reservations-page">
     <div class="reservations-header">
-        <h1>Reservations</h1>
-        <a asp-action="Create" class="btn-main">+ Add Reservation</a>
+        <div>
+            <h1>Reservations</h1>
+            <p class="reservations-subtitle">View reservation details.</p>
+        </div>
+
+        @if (User.IsInRole("Admin"))
+        {
+            <a asp-action="Create" class="btn-main">+ Add Reservation</a>
+        }
     </div>
 
     <div class="reservations-table-wrapper">
@@ -19,7 +26,7 @@
                     <th>Start Date</th>
                     <th>End Date</th>
                     <th>Total Price</th>
-                    <th>Actions</th>
+                    <th class="actions-column">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -28,11 +35,17 @@
                     <tr>
                         <td>@reservation.User?.FirstName @reservation.User?.LastName</td>
                         <td>@reservation.Car?.Brand @reservation.Car?.Model</td>
-                        <td>@reservation.StartDate.ToShortDateString()</td>
-                        <td>@reservation.EndDate.ToShortDateString()</td>
+                        <td>@reservation.StartDate.ToString("dd.MM.yyyy")</td>
+                        <td>@reservation.EndDate.ToString("dd.MM.yyyy")</td>
                         <td>@reservation.TotalPrice.ToString("F2") лв.</td>
                         <td class="action-links">
                             <a asp-action="Details" asp-route-id="@reservation.Id" class="btn-small details-btn">Details</a>
+
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <a asp-action="Edit" asp-route-id="@reservation.Id" class="btn-small edit-btn">Edit</a>
+                                <a asp-action="Delete" asp-route-id="@reservation.Id" class="btn-small delete-btn">Delete</a>
+                            }
                         </td>
                     </tr>
                 }

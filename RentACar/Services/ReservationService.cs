@@ -44,7 +44,7 @@ namespace RentACar.Services
 
             if (car != null)
             {
-                var days = (reservation.EndDate - reservation.StartDate).Days;
+                var days = (reservation.EndDate.Date - reservation.StartDate.Date).Days;
                 if (days <= 0)
                 {
                     days = 1;
@@ -72,7 +72,7 @@ namespace RentACar.Services
 
                 if (car != null)
                 {
-                    var days = (reservation.EndDate - reservation.StartDate).Days;
+                    var days = (reservation.EndDate.Date - reservation.StartDate.Date).Days;
                     if (days <= 0)
                     {
                         days = 1;
@@ -94,6 +94,14 @@ namespace RentACar.Services
                 context.Reservations.Remove(reservation);
                 await context.SaveChangesAsync();
             }
+        }
+        public async Task<List<Reservation>> GetByUserIdAsync(int userId)
+        {
+            return await context.Reservations
+                .Include(r => r.User)
+                .Include(r => r.Car)
+                .Where(r => r.UserId == userId)
+                .ToListAsync();
         }
     }
 }

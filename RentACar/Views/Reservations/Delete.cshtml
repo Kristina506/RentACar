@@ -1,12 +1,14 @@
 ﻿@model RentACar.Models.Reservation
 
 @{
-    ViewData["Title"] = "Reservation Details";
+    ViewData["Title"] = "Delete Reservation";
 }
 
 <div class="details-page">
     <div class="details-card">
-        <h1>Reservation Details</h1>
+        <h1>Delete Reservation</h1>
+
+        <p style="margin-bottom: 20px;">Are you sure you want to delete this reservation?</p>
 
         <div class="details-row">
             <span class="details-label">User:</span>
@@ -38,8 +40,10 @@
             <span>@Model.TotalPrice.ToString("F2") лв.</span>
         </div>
 
-        <div class="form-actions">
+        <form asp-action="Delete" method="post" class="form-actions">
+            <input type="hidden" asp-for="Id" />
+            <button type="submit" class="btn-danger">Delete</button>
             <a asp-action="Index" class="btn-secondary">Back</a>
-        </div>
+        </form>
     </div>
 </div>

@@ -2,10 +2,11 @@
 using Microsoft.AspNetCore.Mvc;
 using RentACar.Models;
 using RentACar.Services;
+using System.Security.Claims;
 
 namespace RentACar.Controllers
 {
-    [Authorize(Roles = "Admin,User")]
+    [Authorize]
     public class ReservationsController : Controller
     {
         private readonly ReservationService reservationService;
@@ -24,8 +25,21 @@ namespace RentACar.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var reservations = await reservationService.GetAllAsync();
-            return View(reservations);
+            if (User.IsInRole("Admin"))
+            {
+                var allReservations = await reservationService.GetAllAsync();
+                return View(allReservations);
+            }
+
+            var userId = GetCurrentUserId();
+
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+
+            var userReservations = await reservationService.GetByUserIdAsync(userId.Value);
+            return View(userReservations);
         }
 
         public async Task<IActionResult> Details(int id)
@@ -37,9 +51,25 @@ namespace RentACar.Controllers
                 return NotFound();
             }
 
+            if (!User.IsInRole("Admin"))
+            {
+                var userId = GetCurrentUserId();
+
+                if (userId == null)
+                {
+                    return RedirectToAction("Login", "Auth");
+                }
+
+                if (reservation.UserId != userId.Value)
+                {
+                    return Forbid();
+                }
+            }
+
             return View(reservation);
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create()
         {
             ViewBag.Users = await userService.GetAllAsync();
@@ -49,11 +79,12 @@ namespace RentACar.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create(Reservation reservation)
         {
-            if (reservation.EndDate < reservation.StartDate)
+            if (reservation.EndDate.Date < reservation.StartDate.Date)
             {
-                ModelState.AddModelError("", "End date cannot be before start date.");
+                ModelState.AddModelError("", "End date cannot be earlier than start date.");
             }
 
             bool isAvailable = await reservationService.IsCarAvailableAsync(
@@ -63,7 +94,7 @@ namespace RentACar.Controllers
 
             if (!isAvailable)
             {
-                ModelState.AddModelError("", "This car is already reserved for the selected period.");
+                ModelState.AddModelError("", "The car is already reserved for this period.");
             }
 
             if (!ModelState.IsValid)
@@ -77,6 +108,7 @@ namespace RentACar.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id)
         {
             var reservation = await reservationService.GetByIdAsync(id);
@@ -93,11 +125,17 @@ namespace RentACar.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Reservation reservation)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Edit(int id, Reservation reservation)
         {
-            if (reservation.EndDate < reservation.StartDate)
+            if (id != reservation.Id)
             {
-                ModelState.AddModelError("", "End date cannot be before start date.");
+                return NotFound();
+            }
+
+            if (reservation.EndDate.Date < reservation.StartDate.Date)
+            {
+                ModelState.AddModelError("", "End date cannot be earlier than start date.");
             }
 
             bool isAvailable = await reservationService.IsCarAvailableAsync(
@@ -108,7 +146,7 @@ namespace RentACar.Controllers
 
             if (!isAvailable)
             {
-                ModelState.AddModelError("", "This car is already reserved for the selected period.");
+                ModelState.AddModelError("", "The car is already reserved for this period.");
             }
 
             if (!ModelState.IsValid)
@@ -122,6 +160,7 @@ namespace RentACar.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var reservation = await reservationService.GetByIdAsync(id);
@@ -136,10 +175,23 @@ namespace RentACar.Controllers
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             await reservationService.DeleteAsync(id);
             return RedirectToAction(nameof(Index));
+        }
+        private int? GetCurrentUserId()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                              ?? User.FindFirst("UserId")?.Value;
+
+            if (int.TryParse(userIdClaim, out int userId))
+            {
+                return userId;
+            }
+
+            return null;
         }
     }
 }

@@ -16,6 +16,7 @@ namespace RentACar.Controllers
             _authService = authService;
         }
 
+        [HttpGet]
         public IActionResult Login()
         {
             return View();
@@ -34,9 +35,10 @@ namespace RentACar.Controllers
 
             var claims = new List<Claim>
             {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim("UserId", user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.Role, user.Role),
-                new Claim("UserId", user.Id.ToString())
+                new Claim(ClaimTypes.Role, user.Role ?? "User")
             };
 
             var identity = new ClaimsIdentity(
@@ -52,6 +54,7 @@ namespace RentACar.Controllers
             return RedirectToAction("Index", "Home");
         }
 
+        [HttpGet]
         public IActionResult Register()
         {
             return View();
@@ -76,6 +79,7 @@ namespace RentACar.Controllers
             return RedirectToAction("Login");
         }
 
+        [HttpGet]
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);

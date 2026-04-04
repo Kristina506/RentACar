@@ -57,9 +57,12 @@ namespace RentACar.Services
 
             if (user != null)
             {
+                var reservations = context.Reservations.Where(r => r.UserId == id);
+                context.Reservations.RemoveRange(reservations);
+
                 context.Users.Remove(user);
                 await context.SaveChangesAsync();
             }
-        }
+    }
     }
 }

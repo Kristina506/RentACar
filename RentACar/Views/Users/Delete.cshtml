@@ -1,0 +1,47 @@
+﻿@model RentACar.Models.User
+
+@{
+    ViewData["Title"] = "Delete User";
+}
+
+<div class="details-page">
+    <div class="details-card">
+        <h1>Delete User</h1>
+
+        <p style="margin-bottom: 20px;">
+            Are you sure you want to delete this user?
+        </p>
+
+        <div class="details-row">
+            <span class="details-label">Username:</span>
+            <span>@Model.Username</span>
+        </div>
+
+        <div class="details-row">
+            <span class="details-label">Name:</span>
+            <span>@Model.FirstName @Model.LastName</span>
+        </div>
+
+        <div class="details-row">
+            <span class="details-label">Email:</span>
+            <span>@Model.Email</span>
+        </div>
+
+        <div class="details-row">
+            <span class="details-label">Phone:</span>
+            <span>@Model.PhoneNumber</span>
+        </div>
+
+        <div class="details-row">
+            <span class="details-label">EGN:</span>
+            <span>@Model.EGN</span>
+        </div>
+
+        <form asp-action="Delete" method="post" class="form-actions">
+            <input type="hidden" asp-for="Id" />
+
+            <button type="submit" class="btn-danger">Delete</button>
+            <a asp-action="Index" class="btn-secondary">Back</a>
+        </form>
+    </div>
+</div>

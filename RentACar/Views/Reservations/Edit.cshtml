@@ -1,0 +1,71 @@
+﻿@model RentACar.Models.Reservation
+
+@{
+    ViewData["Title"] = "Edit Reservation";
+    var users = ViewBag.Users as IEnumerable<RentACar.Models.User>;
+    var cars = ViewBag.Cars as IEnumerable<RentACar.Models.Car>;
+}
+
+<div class="form-page">
+    <div class="form-card">
+        <h1>Edit Reservation</h1>
+
+        <form asp-action="Edit" method="post">
+            <input type="hidden" asp-for="Id" />
+            <div asp-validation-summary="ModelOnly" class="validation-text"></div>
+
+            <div class="form-group">
+                <label asp-for="UserId">User</label>
+                <select asp-for="UserId" class="form-input">
+                    <option value="">Select User</option>
+                    @if (users != null)
+                    {
+                        @foreach (var user in users)
+                        {
+                            <option value="@user.Id">@user.FirstName @user.LastName</option>
+                        }
+                    }
+                </select>
+                <span asp-validation-for="UserId" class="validation-text"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="CarId">Car</label>
+                <select asp-for="CarId" class="form-input">
+                    <option value="">Select Car</option>
+                    @if (cars != null)
+                    {
+                        @foreach (var car in cars)
+                        {
+                            <option value="@car.Id">@car.Brand @car.Model</option>
+                        }
+                    }
+                </select>
+                <span asp-validation-for="CarId" class="validation-text"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="StartDate"></label>
+                <input asp-for="StartDate" type="date" class="form-input" />
+                <span asp-validation-for="StartDate" class="validation-text"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="EndDate"></label>
+                <input asp-for="EndDate" type="date" class="form-input" />
+                <span asp-validation-for="EndDate" class="validation-text"></span>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-main">Save</button>
+                <a asp-action="Index" class="btn-secondary">Back</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
