@@ -13,6 +13,11 @@ namespace RentACar.Controllers
             this.carService = carService;
         }
 
+        private bool IsAdmin()
+        {
+            return HttpContext.Session.GetString("Role") == "Admin";
+        }
+
         public async Task<IActionResult> Index()
         {
             var cars = await carService.GetAllAsync();
@@ -33,12 +38,22 @@ namespace RentACar.Controllers
 
         public IActionResult Create()
         {
+            if (!IsAdmin())
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
             return View();
         }
 
         [HttpPost]
         public async Task<IActionResult> Create(Car car)
         {
+            if (!IsAdmin())
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
             if (!ModelState.IsValid)
             {
                 return View(car);
@@ -50,6 +65,11 @@ namespace RentACar.Controllers
 
         public async Task<IActionResult> Edit(int id)
         {
+            if (!IsAdmin())
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
             var car = await carService.GetByIdAsync(id);
 
             if (car == null)
@@ -63,6 +83,11 @@ namespace RentACar.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(Car car)
         {
+            if (!IsAdmin())
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
             if (!ModelState.IsValid)
             {
                 return View(car);
@@ -74,6 +99,11 @@ namespace RentACar.Controllers
 
         public async Task<IActionResult> Delete(int id)
         {
+            if (!IsAdmin())
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
             var car = await carService.GetByIdAsync(id);
 
             if (car == null)
@@ -87,6 +117,11 @@ namespace RentACar.Controllers
         [HttpPost, ActionName("Delete")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            if (!IsAdmin())
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
             await carService.DeleteAsync(id);
             return RedirectToAction(nameof(Index));
         }

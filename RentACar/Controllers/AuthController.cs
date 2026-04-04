@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using RentACar.Models;
 using RentACar.Services;
 
 namespace RentACar.Controllers
@@ -7,9 +8,9 @@ namespace RentACar.Controllers
     {
         private readonly AuthService authService;
 
-        public AuthController()
+        public AuthController(AuthService authService)
         {
-            authService = new AuthService();
+            this.authService = authService;
         }
 
         public IActionResult Login()
@@ -17,19 +18,25 @@ namespace RentACar.Controllers
             return View();
         }
 
-        [HttpPost]
-        public IActionResult Login(string username, string password)
-        {
-            var isValid = authService.ValidateLogin(username, password);
+        //[HttpPost]
+        //public async Task<IActionResult> Login(string username, string password)
+        //{
+        //    var user = await authService.LoginAsync(username, password);
 
-            if (!isValid)
-            {
-                ViewBag.ErrorMessage = "Invalid username or password.";
-                return View();
-            }
+        //    if (user == null)
+        //    {
+        //        ViewBag.ErrorMessage = "Invalid username or password.";
+        //        return View();
+        //    }
 
-            return RedirectToAction("Index", "Home");
-        }
+        //    // 👉 Записваме в Session
+        //    HttpContext.Session.SetString("Username", user.Username);
+        //    HttpContext.Session.SetString("Role", user.Role);
+
+        //    TempData["SuccessMessage"] = $"Welcome, {user.FirstName}!";
+
+        //    return RedirectToAction("Index", "Home");
+        //}
 
         public IActionResult Register()
         {
@@ -37,20 +44,32 @@ namespace RentACar.Controllers
         }
 
         [HttpPost]
-        public IActionResult Register(string username, string password)
+        public async Task<IActionResult> Register(User user)
         {
-            if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+            if (!ModelState.IsValid)
             {
-                ViewBag.ErrorMessage = "Username and password are required.";
-                return View();
+                return View(user);
             }
 
-            ViewBag.SuccessMessage = "Registration successful.";
-            return View();
+            //user.Role = "User";
+
+            bool success = await authService.RegisterAsync(user);
+
+            if (!success)
+            {
+                ViewBag.ErrorMessage = "Username, email or EGN already exists.";
+                return View(user);
+            }
+
+            TempData["SuccessMessage"] = "Registration successful.";
+            return RedirectToAction(nameof(Login));
         }
 
         public IActionResult Logout()
         {
+            HttpContext.Session.Clear();
+
+            TempData["SuccessMessage"] = "You have logged out.";
             return RedirectToAction("Index", "Home");
         }
     }
